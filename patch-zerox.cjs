@@ -27,8 +27,8 @@ if (!inputFile) {
   process.exit(1);
 }
 
-const NEW_SERVER = 'zero-xx2-tq-production.up.railway.app';
-const AUTH_TOKEN = 'ZERO_THE_LEGEND_X_LIFE';
+const NEW_SERVER = process.env.NEW_SERVER || 'zero-xx2-tq-production.up.railway.app';
+const AUTH_TOKEN = process.env.AUTH_TOKEN || 'ZERO_THE_LEGEND_X_LIFE';
 
 console.log('🔧 ZeroExtens PRO Patcher');
 console.log('   Server: wss://' + NEW_SERVER);
@@ -72,6 +72,8 @@ if (b64Match) {
   }
   
   // 1c. Inietta auth nell'onopen handler
+  const authCode = `var e=(new TextEncoder).encode("${AUTH_TOKEN}"),t=new ArrayBuffer(1+e.length+1);new DataView(t).setUint8(0,8);for(var n=0;n<e.length;n++)new DataView(t).setUint8(1+n,e[n]);new DataView(t).setUint8(1+e.length,0);window.gg.ws.send(t);`;
+  
   const onopenPatterns = [
     'onopen(){nr("Follow"),un("Ready"),ir("Connected")}',
     'onopen(){nr("Follow"),un("Ready"),ir("Connected")}'
@@ -80,7 +82,6 @@ if (b64Match) {
   let authInjected = false;
   for (const pat of onopenPatterns) {
     if (decoded.includes(pat)) {
-      const authCode = 'var e=(new TextEncoder).encode("'+AUTH_TOKEN+'"),t=new ArrayBuffer(1+e.length+1);new DataView(t).setUint8(0,8);for(var n=0;n<e.length;n++)new DataView(t).setUint8(1+n,e[n]);new DataView(t).setUint8(1+e.length,0);this.ws.send(t);';
       decoded = decoded.replace(pat, 'onopen(){'+authCode+'nr("Follow"),un("Ready"),ir("Connected")}');
       console.log('✓ Auth iniettato in onopen');
       authInjected = true;
@@ -93,7 +94,6 @@ if (b64Match) {
     // Fallback: cerca onopen(){ e inietta prima
     const match = decoded.match(/onopen\(\)\{/);
     if (match) {
-      const authCode = 'var e=(new TextEncoder).encode("'+AUTH_TOKEN+'"),t=new ArrayBuffer(1+e.length+1);new DataView(t).setUint8(0,8);for(var n=0;n<e.length;n++)new DataView(t).setUint8(1+n,e[n]);new DataView(t).setUint8(1+e.length,0);this.ws.send(t);';
       decoded = decoded.replace('onopen(){', 'onopen(){'+authCode);
       console.log('✓ Auth iniettato in onopen (regex fallback)');
       authInjected = true;
