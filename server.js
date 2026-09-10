@@ -12,7 +12,7 @@ const wss = new WebSocketServer({ server: server });
 // ═══ Health check HTTP per Render & co. ═══
 server.on('request', (req, res) => {
   if (req.url === '/' || req.url === '/health') {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('XevBots OK');
   }
 });
